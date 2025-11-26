@@ -4,7 +4,7 @@ from copy import copy
 
 class REVELLogger(logging.Logger):
 
-    def __init__(self, name, success_msg, exc_msg, *handlers, handle_error = False, level = 0, **extra):
+    def __init__(self, name, *handlers, success_msg="success", exc_msg="failed", handle_error = False, level = 0, **extra):
         if extra:
             self._extra = {"extra": extra}
         else:
@@ -33,3 +33,58 @@ class REVELLogger(logging.Logger):
             else:
                 self.error(self._exc_msg, extra=extra)
         return self._handle_error
+
+    def info(
+        self,
+        msg,
+        *args,
+        exc_info = None,
+        stack_info = False,
+        stacklevel = 1,
+        **extra
+    ):
+        super().info(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+
+    def warning(
+        self,
+        msg,
+        *args,
+        exc_info = None,
+        stack_info = False,
+        stacklevel = 1,
+        **extra
+    ):
+        super().warning(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+
+    def error(
+        self,
+        msg,
+        *args,
+        exc_info = None,
+        stack_info = False,
+        stacklevel = 1,
+        **extra
+    ):
+        super().error(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+
+    def debug(
+        self,
+        msg,
+        *args,
+        exc_info = None,
+        stack_info = False,
+        stacklevel = 1,
+        **extra
+    ):
+        super().debug(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+
+    def critical(
+        self,
+        msg,
+        *args,
+        exc_info = None,
+        stack_info = False,
+        stacklevel = 1,
+        **extra
+    ):
+        super().critical(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
