@@ -7,6 +7,24 @@ from .revel_base import RevelBaseFormatter
 from .serde import json_serialize
 
 class JSONFormatter(RevelBaseFormatter):
+    """Formatter that renders log records as a single JSON object.
+
+        The formatter always produces a JSON string with at least the following
+        keys:
+
+          * ``level`` – the log level name.
+          * ``time`` – the formatted timestamp.
+          * ``message`` – the log message.
+
+        Additional keyword arguments passed to the constructor are stored as
+        default parameters and included in every record. Any values present
+        in ``record.extra`` (populated by REVEL loggers) are merged on top of
+        those defaults before serialization.
+
+        Values are serialized using :func:`json.dumps` with the REVEL
+        ``json_serialize`` helper as ``default`` so that datetimes and custom
+        objects are handled consistently.
+    """
     def __init__(self, **params):
         self._params = params
 
