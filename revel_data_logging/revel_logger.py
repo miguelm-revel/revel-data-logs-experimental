@@ -3,6 +3,8 @@ from copy import copy
 
 
 class REVELLogger(logging.Logger):
+    _success_bkp = None
+    _fail_bkp = None
 
     def __init__(self, name, *handlers, success_msg="success", exc_msg="failed", handle_error = False, level = 0, **extra):
         if extra:
@@ -17,22 +19,41 @@ class REVELLogger(logging.Logger):
             for handler in handlers:
                 self.addHandler(handler)
 
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._success_bkp:
+            success = self._success_bkp
+        else:
+            success = self._success_msg
+
+        if self._fail_bkp:
+            fail = self._fail_bkp
+        else:
+            fail = self._exc_msg
+
+        self._success_bkp = None
+        self._fail_bkp = None
+
         if exc_type is None:
-            self.info(self._success_msg, extra = self._extra)
+            self.info(success, extra = self._extra)
         else:
             extra = copy(self._extra)
             extra["error_type"] = exc_type.__name__
             extra["error_value"] = exc_val
 
             if self._handle_error:
-                self.warning(self._exc_msg, extra=extra)
+                self.warning(fail, extra=extra)
             else:
-                self.error(self._exc_msg, extra=extra)
+                self.error(fail, extra=extra)
         return self._handle_error
+
+    def with_message(self, success, fail = None):
+        self._success_bkp = success
+        self._fail_bkp = fail
+        return self
 
     def info(
         self,
