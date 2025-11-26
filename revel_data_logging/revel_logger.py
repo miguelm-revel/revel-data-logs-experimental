@@ -43,7 +43,7 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().info(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+        super().info(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": extra})
 
     def warning(
         self,
@@ -54,7 +54,7 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().warning(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+        super().warning(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": extra})
 
     def error(
         self,
@@ -65,7 +65,7 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().error(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+        super().error(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": extra})
 
     def debug(
         self,
@@ -76,7 +76,7 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().debug(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+        super().debug(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": extra})
 
     def critical(
         self,
@@ -87,4 +87,4 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().critical(msg, *args, exc_info, stack_info, stacklevel, extra={"extra": extra})
+        super().critical(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": extra})
