@@ -8,7 +8,7 @@ class REVELLogger(logging.Logger):
 
     def __init__(self, name, *handlers, success_msg="success", exc_msg="failed", handle_error = False, level = 0, **extra):
         if extra:
-            self._extra = {"extra": extra}
+            self._extra = extra
         else:
             self._extra = None
         self._success_msg = success_msg
