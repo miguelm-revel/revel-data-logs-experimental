@@ -37,17 +37,17 @@ class REVELLogger(logging.Logger):
         self._success_bkp = None
         self._fail_bkp = None
 
-        extra = {
-            "extra": {
-                self.name: self._extra
-            }
-        }
 
         if exc_type is None:
-            self.info(success, extra = self._extra)
+            self.info(success)
         else:
-            extra["extra"]["error_type"] = exc_type.__name__
-            extra["extra"]["error_value"] = exc_val
+
+            extra = {
+                "extra": {
+                    "error_type": exc_type.__name__,
+                    "error_value": exc_val
+                }
+            }
 
             if self._handle_error:
                 self.warning(fail, extra=extra)
