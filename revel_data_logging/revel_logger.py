@@ -37,12 +37,17 @@ class REVELLogger(logging.Logger):
         self._success_bkp = None
         self._fail_bkp = None
 
+        extra = {
+            "extra": {
+                self.name: self._extra
+            }
+        }
+
         if exc_type is None:
             self.info(success, extra = self._extra)
         else:
-            extra = copy(self._extra)
-            extra["error_type"] = exc_type.__name__
-            extra["error_value"] = exc_val
+            extra["extra"]["error_type"] = exc_type.__name__
+            extra["extra"]["error_value"] = exc_val
 
             if self._handle_error:
                 self.warning(fail, extra=extra)
@@ -64,7 +69,9 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().info(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": {**extra, **self._extra}})
+        if isinstance(extra, dict):
+          extra[self.name] = self._extra
+        super().info(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": extra})
 
     def warning(
         self,
@@ -75,7 +82,10 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().warning(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": {**extra, **self._extra}})
+        if isinstance(extra, dict):
+            extra[self.name] = self._extra
+        super().warning(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
 
     def error(
         self,
@@ -86,7 +96,10 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().error(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": {**extra, **self._extra}})
+        if isinstance(extra, dict):
+            extra[self.name] = self._extra
+        super().error(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
 
     def debug(
         self,
@@ -97,7 +110,10 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().debug(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": {**extra, **self._extra}})
+        if isinstance(extra, dict):
+            extra[self.name] = self._extra
+        super().debug(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
 
     def critical(
         self,
@@ -108,4 +124,7 @@ class REVELLogger(logging.Logger):
         stacklevel = 1,
         **extra
     ):
-        super().critical(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": {**extra, **self._extra}})
+        if isinstance(extra, dict):
+            extra[self.name] = self._extra
+        super().critical(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
