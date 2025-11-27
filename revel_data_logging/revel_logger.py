@@ -2,6 +2,7 @@ import logging
 
 
 class REVELLogger(logging.Logger):
+    _current_loggers: list[logging.Logger] = []
     """REVEL-aware logger with structured context and helper behavior.
 
         This logger extends :class:`logging.Logger` to make it easy to work
@@ -20,6 +21,11 @@ class REVELLogger(logging.Logger):
     """
     _success_bkp = None
     _fail_bkp = None
+
+    @classmethod
+    def set_level(cls, level: str | int):
+        for logger in cls._current_loggers:
+            logger.setLevel(level)
 
     def __init__(self, name, *handlers, success_msg="success", exc_msg="failed", handle_error = False, level = 0, **extra):
         """Create a REVELLogger.
@@ -51,6 +57,15 @@ class REVELLogger(logging.Logger):
             for handler in handlers:
                 self.addHandler(handler)
 
+        REVELLogger._current_loggers.append(self)
+
+    @property
+    def extra(self):
+        return self._extra
+
+    def __del__(self):
+        REVELLogger._current_loggers.remove(self)
+        del self
 
     def __enter__(self):
         return self
@@ -74,17 +89,15 @@ class REVELLogger(logging.Logger):
             self.info(success)
         else:
 
-            extra = {
-                "extra": {
-                    "error_type": exc_type.__name__,
-                    "error_value": exc_val
-                }
+            exc_info = {
+                "error_type": exc_type.__name__,
+                "error_value": exc_val
             }
 
             if self._handle_error:
-                self.warning(fail, extra=extra)
+                self.warning(fail, exc=exc_info)
             else:
-                self.error(fail, extra=extra)
+                self.error(fail, exc=exc_info)
         return self._handle_error
 
     def with_message(self, success, fail = None):

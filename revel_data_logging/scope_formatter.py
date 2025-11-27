@@ -1,6 +1,7 @@
 import logging
 
-from revel_data_logging.interfaces import _RevelFormatter
+from .revel_logger import REVELLogger
+from .interfaces import _RevelFormatter
 
 
 class ContextLogger(logging.LoggerAdapter):
@@ -26,14 +27,79 @@ class ContextLogger(logging.LoggerAdapter):
                         adapter. This value is added to the structured ``extra``
                         dict on every log call.
         """
+        has_revel_formatter = False
         for _handler in logger.handlers:
             if isinstance(_handler.formatter, _RevelFormatter):
-                _handler.formatter.add_param(name)
+                has_revel_formatter = True
+                break
+        assert has_revel_formatter, "logger must have at least one revel formatter"
 
         self._name = name
         super().__init__(logger, extra)
 
     def process(self, msg, kwargs):
-        extra = kwargs.get("extra", {}).get("extra", {})
-        extra[self._name] = self.extra
-        return f"{msg}", {"extra": {"extra": extra}}
+        existing = kwargs.get("extra", {}).get("extra", {})
+        merged = {**existing, self._name: self.extra}
+        if isinstance(self.logger, REVELLogger):
+            merged[self.logger.name] = self.logger.extra
+        return msg, {"extra": {"extra": merged}}
+
+    def info(
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
+    ):
+        super().info(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
+
+    def debug(
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
+    ):
+        super().debug(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
+
+    def warning(
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
+    ):
+        super().warning(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
+
+    def error(
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
+    ):
+        super().error(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
+
+    def critical(
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
+    ):
+        super().critical(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})

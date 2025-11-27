@@ -58,7 +58,7 @@ def loggable(logger: logging.Logger | logging.LoggerAdapter):
         def wrapper(*args, **kwargs):
             arg_dict = _get_args(signature, args, kwargs)
 
-            logger.info(f"func {func.__name__} called", extra={"extra": {"args": arg_dict}})
+            logger.info(f"func {func.__name__} called", args=arg_dict)
 
             return func(*args, **kwargs)
 
@@ -103,7 +103,7 @@ def error_logs(logger: logging.Logger | logging.LoggerAdapter, handle_error: boo
                 return func(*args, **kwargs)
             except Exception as e:
                 arg_dict = _get_args(signature, args, kwargs)
-                logger.error(str(e), extra={"extra": {"function_name": func.__name__, "args": arg_dict}})
+                logger.error(str(e), function_name = func.__name__, args = arg_dict)
                 if handle_error:
                     return None
                 else:
