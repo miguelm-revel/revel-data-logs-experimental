@@ -100,6 +100,15 @@ class REVELLogger(logging.Logger):
                 self.error(fail, exc=exc_info)
         return self._handle_error
 
+    def __setitem__(self, key, value):
+        self.add_param(key, value)
+
+    def add_param(self, param, value):
+        if self._extra:
+            self._extra[param] = value
+        else:
+            self._extra = {param: value}
+
     def with_message(self, success, fail = None):
         """
         This helper is intended for use with the context manager protocol.
