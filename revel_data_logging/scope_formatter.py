@@ -1,7 +1,7 @@
 import logging
 
-from .revel_logger import REVELLogger
 from .interfaces import _RevelFormatter
+from .revel_logger import REVELLogger
 
 
 class ContextLogger(logging.LoggerAdapter):
@@ -15,6 +15,7 @@ class ContextLogger(logging.LoggerAdapter):
         This is useful for attaching high-level context such as ``request_id``,
         ``user_id`` or ``job_id`` to all logs produced within a scope.
     """
+
     def __init__(self, logger, name, extra=None):
         """Create a new contextual logger.
 
@@ -66,7 +67,7 @@ class ContextLogger(logging.LoggerAdapter):
             **extra
     ):
         super().debug(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                      extra={"extra": extra})
 
     def warning(
             self,
@@ -78,7 +79,7 @@ class ContextLogger(logging.LoggerAdapter):
             **extra
     ):
         super().warning(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                        extra={"extra": extra})
 
     def error(
             self,
@@ -90,7 +91,7 @@ class ContextLogger(logging.LoggerAdapter):
             **extra
     ):
         super().error(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                      extra={"extra": extra})
 
     def critical(
             self,
@@ -102,4 +103,4 @@ class ContextLogger(logging.LoggerAdapter):
             **extra
     ):
         super().critical(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                         extra={"extra": extra})

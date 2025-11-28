@@ -1,10 +1,10 @@
-
 import json
 import logging
 from typing import Any
 
 from .revel_base import RevelBaseFormatter
 from .serde import json_serialize
+
 
 class JSONFormatter(RevelBaseFormatter):
     """Formatter that renders log records as a single JSON object.
@@ -25,6 +25,7 @@ class JSONFormatter(RevelBaseFormatter):
         ``json_serialize`` helper as ``default`` so that datetimes and custom
         objects are handled consistently.
     """
+
     def __init__(self, **params):
         self._params = params
 

@@ -4,6 +4,7 @@ __all__ = [
     "json_serialize"
 ]
 
+
 def json_serialize(o):
     if isinstance(o, datetime):
         return o.isoformat()

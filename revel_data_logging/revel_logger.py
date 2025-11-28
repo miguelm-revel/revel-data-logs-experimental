@@ -1,4 +1,6 @@
 import logging
+import sys
+import os
 
 
 class REVELLogger(logging.Logger):
@@ -21,13 +23,29 @@ class REVELLogger(logging.Logger):
     """
     _success_bkp = None
     _fail_bkp = None
+    _stdout_bkp = None
+    _stderr_bkp = None
+    _context_params_name = None
+    _context_params = {}
 
     @classmethod
     def set_level(cls, level: str | int):
         for logger in cls._current_loggers:
             logger.setLevel(level)
 
-    def __init__(self, name, *handlers, success_msg="success", exc_msg="failed", handle_error = False, level = 0, **extra):
+    def __init__(
+            self,
+            name,
+            *handlers,
+            success_msg="success",
+            exc_msg="failed",
+            handle_error=False,
+            level=0,
+            outer_logs_disabled=False,
+            stdout = None,
+            stderr = None,
+            **extra
+    ):
         """Create a REVELLogger.
 
                 Args:
@@ -57,6 +75,9 @@ class REVELLogger(logging.Logger):
             for handler in handlers:
                 self.addHandler(handler)
 
+        self._outer_logs_disabled = outer_logs_disabled
+        self._parse_stdio(stdout, stderr)
+
         REVELLogger._current_loggers.append(self)
 
     @property
@@ -68,6 +89,15 @@ class REVELLogger(logging.Logger):
         del self
 
     def __enter__(self):
+        if self._outer_logs_disabled:
+            self._stdout_bkp = sys.stdout
+            self._stderr_bkp = sys.stderr
+            sys.stdout = self._stdout
+            sys.stderr = self._stderr
+
+        if self._context_params_name:
+            self._extra[self._context_params_name] = self._context_params
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -84,6 +114,16 @@ class REVELLogger(logging.Logger):
         self._success_bkp = None
         self._fail_bkp = None
 
+        if self._outer_logs_disabled:
+            sys.stdout = self._stdout_bkp
+            sys.stderr = self._stderr_bkp
+            self._stdout_bkp = None
+            self._stderr_bkp = None
+
+        if self._context_params_name:
+            self._extra.pop(self._context_params_name, None)
+            self._context_params_name = None
+            self._context_params = None
 
         if exc_type is None:
             self.info(success)
@@ -109,7 +149,16 @@ class REVELLogger(logging.Logger):
         else:
             self._extra = {param: value}
 
-    def with_message(self, success, fail = None):
+    def _parse_stdio(self, stdout, stderr):
+        if stdout is None:
+            stdout = open(os.devnull, "w")
+        if stderr is None:
+            stderr = open(os.devnull, "w")
+
+        self._stdout = stdout
+        self._stderr = stderr
+
+    def with_message(self, success, fail=None):
         """
         This helper is intended for use with the context manager protocol.
         It temporarily overrides the success and failure messages used by
@@ -128,71 +177,82 @@ class REVELLogger(logging.Logger):
         self._fail_bkp = fail
         return self
 
+    def disable_outer_logs(self, stdout = None, stderr = None):
+        self._outer_logs_disabled = True
+        self._parse_stdio(stdout, stderr)
+        return self
+
+    def with_context_params(self, name, **params):
+        self._context_params_name = name
+        self._context_params = params
+        return self
+
     def info(
-        self,
-        msg,
-        *args,
-        exc_info = None,
-        stack_info = False,
-        stacklevel = 1,
-        **extra
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
     ):
         if isinstance(extra, dict):
-          extra[self.name] = self._extra
-        super().info(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel, extra={"extra": extra})
+            extra[self.name] = self._extra
+        super().info(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
+                     extra={"extra": extra})
 
     def warning(
-        self,
-        msg,
-        *args,
-        exc_info = None,
-        stack_info = False,
-        stacklevel = 1,
-        **extra
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
     ):
         if isinstance(extra, dict):
             extra[self.name] = self._extra
         super().warning(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                        extra={"extra": extra})
 
     def error(
-        self,
-        msg,
-        *args,
-        exc_info = None,
-        stack_info = False,
-        stacklevel = 1,
-        **extra
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
     ):
         if isinstance(extra, dict):
             extra[self.name] = self._extra
         super().error(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                      extra={"extra": extra})
 
     def debug(
-        self,
-        msg,
-        *args,
-        exc_info = None,
-        stack_info = False,
-        stacklevel = 1,
-        **extra
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
     ):
         if isinstance(extra, dict):
             extra[self.name] = self._extra
         super().debug(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                      extra={"extra": extra})
 
     def critical(
-        self,
-        msg,
-        *args,
-        exc_info = None,
-        stack_info = False,
-        stacklevel = 1,
-        **extra
+            self,
+            msg,
+            *args,
+            exc_info=None,
+            stack_info=False,
+            stacklevel=1,
+            **extra
     ):
         if isinstance(extra, dict):
             extra[self.name] = self._extra
         super().critical(msg, *args, exc_info=exc_info, stack_info=stack_info, stacklevel=stacklevel,
-                     extra={"extra": extra})
+                         extra={"extra": extra})
