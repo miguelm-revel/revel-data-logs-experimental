@@ -1,6 +1,6 @@
 import logging
-import sys
 import os
+import sys
 
 
 class REVELLogger(logging.Logger):
@@ -42,8 +42,8 @@ class REVELLogger(logging.Logger):
             handle_error=False,
             level=0,
             outer_logs_disabled=False,
-            stdout = None,
-            stderr = None,
+            stdout=None,
+            stderr=None,
             **extra
     ):
         """Create a REVELLogger.
@@ -96,7 +96,7 @@ class REVELLogger(logging.Logger):
             sys.stderr = self._stderr
 
         if self._context_params_name:
-            self._extra[self._context_params_name] = self._context_params
+            self.add_param(self._context_params_name, self._context_params)
 
         return self
 
@@ -120,11 +120,6 @@ class REVELLogger(logging.Logger):
             self._stdout_bkp = None
             self._stderr_bkp = None
 
-        if self._context_params_name:
-            self._extra.pop(self._context_params_name, None)
-            self._context_params_name = None
-            self._context_params = None
-
         if exc_type is None:
             self.info(success)
         else:
@@ -138,6 +133,13 @@ class REVELLogger(logging.Logger):
                 self.warning(fail, exc=exc_info)
             else:
                 self.error(fail, exc=exc_info)
+
+        if self._context_params_name:
+            self._extra.pop(self._context_params_name, None)
+            self._context_params_name = None
+            self._context_params = None
+        if not self._extra:
+            self._extra = None
         return self._handle_error
 
     def __setitem__(self, key, value):
@@ -177,7 +179,7 @@ class REVELLogger(logging.Logger):
         self._fail_bkp = fail
         return self
 
-    def disable_outer_logs(self, stdout = None, stderr = None):
+    def disable_outer_logs(self, stdout=None, stderr=None):
         self._outer_logs_disabled = True
         self._parse_stdio(stdout, stderr)
         return self
